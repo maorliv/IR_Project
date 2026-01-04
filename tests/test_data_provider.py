@@ -1,10 +1,10 @@
-from data_provider.DataProvider import DataProvider
+from data_provider.data_provider import DataProvider
 
 
 if __name__ == "__main__":
     dp = DataProvider(r"C:\Users\maor livni\PycharmProjects\IR_Project\mini_index")
 
-    term = "history"
+    term = "maor"
     pl = dp.get_posting_list(term)
 
     print(f"Posting list size for '{term}':", len(pl))
