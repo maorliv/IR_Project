@@ -75,7 +75,28 @@ class SearchController:
 
         return CosineSimilarity.compute(query_vec=query_tfidf, doc_vecs=doc_tfidfs)
 
-    
+    def rank_top_k(scores: Dict[int, float], k: int = 10) -> List[int]:
+        """
+        Rank documents by score and return top-k doc IDs.
+        """
+        if not scores:
+            return []
+
+        ranked = sorted(
+            scores.items(),
+            key=lambda item: item[1],
+            reverse=True
+        )
+
+        top_k = ranked[:k]
+
+        return [doc_id for doc_id, _ in top_k]
+
+    def get_top_k(self, query: str, k: int = 10) -> List[int]:
+        scores = self.compute_cosine_scores(query)
+        top10_docs = self.rank_top_k(scores, k)
+        return top10_docs
+
 
 
 

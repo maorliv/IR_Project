@@ -44,11 +44,6 @@ def main():
     assert df_map[term] == len(pl), f"df({term}) should equal posting list length ({df_map[term]} != {len(pl)})"
     print(f"get_df({tokens}) -> {df_map} OK")
 
-    # # compute_corpus_size
-    # N = dp.compute_corpus_size()
-    # assert isinstance(N, int), "corpus size N must be integer"
-    # assert N >= df, f"corpus size N ({N}) must be >= df({df})"
-    # print(f"compute_corpus_size() -> {N} OK")
 
 
 if __name__ == "__main__":
