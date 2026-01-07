@@ -30,21 +30,6 @@ class IndexProvider:
     def get_N(self) -> int:
         return self.N
 
-    # def get_N(self) -> int:
-    #     # compute fresh corpus size by scanning posting lists
-    #     idx = self._load_index()
-    #     if idx is None:
-    #         return 0
-    #     docs = set()
-    #     base_for_postings = self.postings_dir if self.postings_dir.exists() else self.base_dir
-    #     try:
-    #         iterator = idx.posting_lists_iter(base_for_postings)
-    #     except TypeError:
-    #         iterator = idx.posting_lists_iter()
-    #     for _, pl in iterator:
-    #         for doc_id, _ in pl:
-    #             docs.add(doc_id)
-    #     return len(docs)
 
     def get_df(self, terms: List[str]) -> Dict[str, int]:
         """Return document frequencies for multiple terms as a dict term->df."""

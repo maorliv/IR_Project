@@ -75,6 +75,10 @@ class SearchController:
 
         return CosineSimilarity.compute(query_vec=query_tfidf, doc_vecs=doc_tfidfs)
 
+
+
+
+#===============================Not debugging======================
     def rank_top_k(scores: Dict[int, float], k: int = 10) -> List[int]:
         """
         Rank documents by score and return top-k doc IDs.
