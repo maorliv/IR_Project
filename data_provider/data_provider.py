@@ -1,35 +1,47 @@
+import csv
+import sys
+import gzip
 import pickle
 from pathlib import Path
-from inverted_index_colab import InvertedIndex, read_posting_list
+from typing import Dict, List
+
+from .index_provider import IndexProvider
+from .pagerank_provider import PageRankProvider
+
+
 
 class DataProvider:
-    def __init__(self, base_dir: str):
-        """
-        base_dir:
-            Directory containing:
-            - index.pkl        (inverted index metadata)
-            - *.bin            (posting lists)
-            - pagerank.pkl     (PageRank scores)
-        """
-        self.base_dir = Path(base_dir)
+    """Compatibility wrapper that composes the three new providers.
 
-        # Load inverted index metadata (BODY only)
-        self.index = InvertedIndex.read_index(base_dir=self.base_dir, name="index") #reed only index.pkl(inverted index metadata)
-
-        # Load PageRank dictionary
-        with open(self.base_dir / "pagerank.pkl", "rb") as f:
-            self.pagerank = pickle.load(f)
+    Existing callers can continue to use `DataProvider(base_dir)` and call
+    `get_posting_list` and `get_pagerank`. Internally this delegates to the
+    new `IndexProvider`, `PageRankProvider` and `IndexStatsProvider` classes.
+    """
+    def __init__(self, base_dir: str, postings_subdir: str = "postings_gcp", pr_subdir: str = "pr"):
+        self.index_provider = IndexProvider(base_dir=base_dir, postings_subdir=postings_subdir)
+        self.pagerank_provider = PageRankProvider(base_dir=base_dir, pr_subdir=pr_subdir)
 
 
-    # ---------- Inverted Index ----------
+    def get_posting_list(self, terms: List[str]):
+        # expect a list of terms; protect against accidental string input
+        if isinstance(terms, (str, bytes)):
+            raise TypeError("terms must be a list of strings, not a single string")
+        terms = list(terms)
+        return self.index_provider.get_posting_list(terms)
 
-    def get_posting_list(self, term: str):
-        return read_posting_list(inverted=self.index,base_dir=self.base_dir,w=term)
+    def get_pagerank(self, doc_ids: List[int]):
+        # expect a list of document ids
+        if isinstance(doc_ids, (str, bytes, int)):
+            raise TypeError("doc_ids must be a list of ints, not a single value")
+        ids = list(doc_ids)
+        return self.pagerank_provider.get_pagerank(ids)
 
-    # ---------- PageRank ----------
+    def get_df(self, terms: List[str]):
+        # expect a list of terms; protect against accidental string input
+        if isinstance(terms, (str, bytes)):
+            raise TypeError("terms must be a list of strings, not a single string")
+        terms = list(terms)
+        return self.index_provider.get_df(terms)
 
-    def get_pagerank(self, doc_id: int) -> float:
-        """
-        Return PageRank score for a document.
-        """
-        return self.pagerank.get(doc_id, 0.0)
+    def corpus_size(self) -> int:
+        return self.index_provider.get_N()
