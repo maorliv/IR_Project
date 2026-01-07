@@ -7,7 +7,7 @@ def main():
     q = 'Mount Everest climbing expeditions'
     search_controller = SearchController(base_dir='data', query=q)
     print(search_controller.calc_query_tf_idf(query=q))
-    print('TfIdf.compute_query_tfidf tests OK')
+    print('TfIdf.compute_query_tfidf tests OKK')
 
 
 if __name__ == '__main__':
