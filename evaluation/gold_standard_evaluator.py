@@ -43,6 +43,7 @@ class GoldStandardEvaluator:
 
         return gold
 
+
     # ---------- Public API ----------
 
     def get_all_queries(self) -> List[str]:
