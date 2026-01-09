@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from data_provider.data_provider import DataProvider
 from text_processor.query_tokenize import QueryTokenize
@@ -183,6 +183,11 @@ class SearchController:
         top10_docs = self.rank_top_k(scores, k)
         return top10_docs
 
+    def get_top_100(self, query: str, k: int = 100) -> List[Tuple[int, str]]:
+        scores = self.compute_ranking_scores(query)
+        top100_docs = self.rank_top_k(scores, k)
+        res = self.data_provider.get_titles_from_docIDs(top100_docs)
+        return res
 
 
 
