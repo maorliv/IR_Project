@@ -1,5 +1,5 @@
 from controllers.SearchController import SearchController
-from ranker.tf_idf import TfIdf
+from ranker.bm25 import BM25
 import math
 
 
@@ -9,8 +9,8 @@ def main():
 
     q = 'Mount Everest climbing expeditions'
     search_controller = SearchController(base_dir='data', query=q)
-    # print(search_controller.compute_tfidf(query=q))
-    print(len(search_controller.compute_tfidf(query=q)))
+    # print(search_controller.compute_doc_scores(query=q))
+    print(len(search_controller.compute_doc_scores(query=q)))
 
 if __name__ == '__main__':
     main()

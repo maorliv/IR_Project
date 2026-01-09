@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from .index_provider import IndexProvider
 from .pagerank_provider import PageRankProvider
+from .docID_to_title_provider import TitleProvider
 
 
 
@@ -17,9 +18,10 @@ class DataProvider:
     `get_posting_list` and `get_pagerank`. Internally this delegates to the
     new `IndexProvider`, `PageRankProvider` and `IndexStatsProvider` classes.
     """
-    def __init__(self, base_dir: str, postings_subdir: str = "postings_gcp", pr_subdir: str = "pr"):
+    def __init__(self, base_dir: str, postings_subdir: str = "postings_gcp", pr_subdir: str = "pr", titles_subdir: str = "id_to_title" ):
         self.index_provider = IndexProvider(base_dir=base_dir, postings_subdir=postings_subdir)
         self.pagerank_provider = PageRankProvider(base_dir=base_dir, pr_subdir=pr_subdir)
+        self.title_provider = TitleProvider(base_dir=base_dir, titles_subdir=titles_subdir)
 
 
     def get_posting_list(self, terms: List[str]):
@@ -45,3 +47,9 @@ class DataProvider:
 
     def corpus_size(self) -> int:
         return self.index_provider.get_N()
+
+    def get_titles_from_docIDs(self, doc_ids: List[int]) -> List[tuple]:
+        return self.title_provider.get_titles_from_docIDs(doc_ids)
+
+    def get_titles_from_docIDs(self, doc_ids: List[int]):
+        return self.title_provider.get_titles_from_docIDs(doc_ids)

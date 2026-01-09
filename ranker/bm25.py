@@ -2,11 +2,11 @@ from typing import List, Dict, Tuple
 import math
 
 
-class TfIdf:
+class BM25:
     @staticmethod
     def compute(postings: Dict[str, List[Tuple[int, int]]], df_map: Dict[str, int], N: int) -> Dict[int, Dict[str, float]]:
         """
-        Compute TF-IDF for the provided postings and df map.
+        Compute BM25 scores for the provided postings and df map.
 
         Parameters:
         - postings: dict mapping term -> list of (doc_id, tf)
@@ -14,7 +14,7 @@ class TfIdf:
         - N: total number of documents (int)
 
         Returns:
-        - dict mapping doc_id -> { term: tfidf, ... }
+        - dict mapping doc_id -> { term: bm25_score, ... }
         """
         if N <= 0:
             return {}
@@ -30,6 +30,9 @@ class TfIdf:
             else:
                 # standard idf = log2(N / df)
                 idf = math.log2(N / df) if df > 0 else 0.0
+            
+            # BM25 parameters (b=0 assuming no length normalization info available)
+            k1 = 1.5
 
             for doc_id, tf in posting_list:
                 try:
@@ -39,40 +42,33 @@ class TfIdf:
                         tf_val = float(int(tf))
                     except Exception:
                         tf_val = 0.0
-                tfidf = tf_val * idf
+                
+                # BM25 computation with b=0: (tf * (k1 + 1)) / (tf + k1)
+                numerator = tf_val * (k1 + 1)
+                denominator = tf_val + k1
+                bm25_tf = numerator / denominator
+                
+                # Final score for the term in this doc
+                score = bm25_tf * idf
+                
                 if doc_id not in result:
                     result[doc_id] = {}
-                result[doc_id][term] = tfidf
+                result[doc_id][term] = score
 
         return result
 
     @staticmethod
-    def compute_query_tfidf(tf_counts: Dict[str, int], df_map: Dict[str, int], N: int) -> Dict[str, float]:
+    def compute_query_weights(tf_counts: Dict[str, int], df_map: Dict[str, int], N: int) -> Dict[str, float]:
         """
-        Compute TF-IDF for a query represented by term counts.
-
-        Parameters:
-        - tf_counts: dict term -> raw count in query
-        - df_map: dict term -> document frequency
-        - N: total number of documents
-
-        Returns:
-        - dict term -> tfidf (float)
+        Compute query weights. With BM25 in the doc vector, we just need frequency here.
         """
-        import math
         out: Dict[str, float] = {}
-        if N <= 0:
-            for t in tf_counts:
-                out[t] = 0.0
-            return out
-
+        # N is unused for query weights in this BM25 implementation logic
+        
         for term, tf in tf_counts.items():
-            df = int(df_map.get(term, 0))
-            if df <= 0:
-                idf = 0.0
-            else:
-                idf = math.log2(N / df)
-            out[term] = float(tf) * idf
+            # We use raw frequency for the query vector (or 1 / binary)
+            # The IDF is already collected in the document scoring phase.
+            out[term] = float(tf)
         return out
 
 

@@ -1,4 +1,4 @@
-from ranker.tf_idf import TfIdf
+from ranker.bm25 import BM25
 from controllers.SearchController import SearchController
 import math
 
@@ -6,8 +6,8 @@ import math
 def main():
     q = 'Mount Everest climbing expeditions'
     search_controller = SearchController(base_dir='data', query=q)
-    print(search_controller.calc_query_tf_idf(query=q))
-    print('TfIdf.compute_query_tfidf tests OK')
+    print(search_controller.get_query_term_weights(query=q))
+    print('BM25.compute_query_weights tests OK')
 
 
 if __name__ == '__main__':

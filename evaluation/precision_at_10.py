@@ -1,18 +1,14 @@
 class PrecisionAt_10:
-    def __init__(self, gold_standard):
-        self.gold = gold_standard
+    def __init__(self):
+        pass
 
-    def precision_at_10(self, query: str, ranked_docs: list[str]) -> float:
+    def precision_at_10(self, ranked_docs: list[int], relevant_docs: list[int]) -> float:
         top10 = ranked_docs[:10]
-        relevant = self.gold.get_relevant_docs(query)
-
         if not top10:
             return 0.0
 
+        relevant_set = set(relevant_docs)
         relevant_in_top10 = sum(
-            1 for doc_id in top10 if doc_id in relevant
+            1 for doc_id in top10 if doc_id in relevant_set
         )
         return relevant_in_top10 / 10
-
-
-    # def average_precision_at_10()

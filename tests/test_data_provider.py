@@ -3,7 +3,7 @@ from text_processor.query_tokenize import QueryTokenize
 
 
 def main():
-    dp = DataProvider(r"C:\Users\maor livni\PycharmProjects\IR_Project\data")
+    dp = DataProvider("data")
 
     # full query to test (tokenized)
     q = "Mount Everest climbed food"
