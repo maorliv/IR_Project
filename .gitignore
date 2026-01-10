@@ -32,3 +32,5 @@ queries_train.json
 IR_Project/
 
 inverted_index_colab.py
+
+scripts/
