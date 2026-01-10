@@ -6,11 +6,11 @@ from ranker.bm25 import BM25
 from ranker.score_accumulator import ScoreAccumulator
 
 class SearchController:
-    def __init__(self, base_dir: str, query: str = "", weight_text: float = 0.8, weight_pagerank: float = 0.2):
+    def __init__(self, bucket_name: str, query: str = "", weight_text: float = 0.8, weight_pagerank: float = 0.2):
         # `query` parameter kept for backwards compatibility with tests
         # weights are configurable and stored on the controller; no hardcoded
         # values are used inside ranking methods.
-        self.data_provider = DataProvider(base_dir=base_dir)
+        self.data_provider = DataProvider(bucket_name=bucket_name)
         self.query_tk = QueryTokenize()
         self.ranker = BM25()
         self.weight_text = float(weight_text)

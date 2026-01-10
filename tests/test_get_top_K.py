@@ -1,11 +1,11 @@
 from controllers.SearchController import SearchController
 
 
-
 def main():
-    sc = SearchController(base_dir='data', query='')
-    q = 'Mount Everest climbing expeditions'
-    print("the best 10 are:", sc.get_top_k(q))
+    BUCKET_NAME = "ir-maor-2025-bucket"
+    sc = SearchController(bucket_name=BUCKET_NAME)
+    q = 'Stonehenge prehistoric monument'
+    print("the best 10 are:", sc.get_top_100(q)[:10])
 
 
 if __name__ == '__main__':

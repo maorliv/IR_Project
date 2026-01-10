@@ -1,11 +1,10 @@
 from controllers.SearchController import SearchController
-from text_processor.query_tokenize import QueryTokenize
 from ranker.score_accumulator import ScoreAccumulator
 
 
 def main():
-    sc = SearchController(base_dir='data')
-    qt = QueryTokenize()
+    BUCKET_NAME = "ir-maor-2025-bucket"
+    sc = SearchController(bucket_name=BUCKET_NAME)
     q = 'Mount Everest climbing expeditions'
     acc = ScoreAccumulator()
     # compute_ranking_scores returns final scores, but test originally called compute_cosine_and_pr_scores

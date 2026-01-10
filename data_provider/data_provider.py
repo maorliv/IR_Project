@@ -1,9 +1,4 @@
-import csv
-import sys
-import gzip
-import pickle
-from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 from .index_provider import IndexProvider
 from .pagerank_provider import PageRankProvider
@@ -13,15 +8,13 @@ from .docID_to_title_provider import TitleProvider
 
 class DataProvider:
     """Compatibility wrapper that composes the three new providers.
-
-    Existing callers can continue to use `DataProvider(base_dir)` and call
-    `get_posting_list` and `get_pagerank`. Internally this delegates to the
-    new `IndexProvider`, `PageRankProvider` and `IndexStatsProvider` classes.
+    
+    Loads data from GCS bucket.
     """
-    def __init__(self, base_dir: str, postings_subdir: str = "postings_gcp", pr_subdir: str = "pr", titles_subdir: str = "id_to_title" ):
-        self.index_provider = IndexProvider(base_dir=base_dir, postings_subdir=postings_subdir)
-        self.pagerank_provider = PageRankProvider(base_dir=base_dir, pr_subdir=pr_subdir)
-        self.title_provider = TitleProvider(base_dir=base_dir, titles_subdir=titles_subdir)
+    def __init__(self, bucket_name: str, postings_subdir: str = "postings_gcp", pr_subdir: str = "pr", titles_subdir: str = "id_to_title" ):
+        self.index_provider = IndexProvider(bucket_name=bucket_name, index_prefix=postings_subdir)
+        self.pagerank_provider = PageRankProvider(bucket_name=bucket_name, pr_subdir=pr_subdir)
+        self.title_provider = TitleProvider(bucket_name=bucket_name, titles_subdir=titles_subdir)
 
 
     def get_posting_list(self, terms: List[str]):

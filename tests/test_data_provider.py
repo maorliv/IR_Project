@@ -3,7 +3,8 @@ from text_processor.query_tokenize import QueryTokenize
 
 
 def main():
-    dp = DataProvider("data")
+    BUCKET_NAME = "ir-maor-2025-bucket"
+    dp = DataProvider(BUCKET_NAME)
 
     # full query to test (tokenized)
     q = "Mount Everest climbed food"
@@ -12,7 +13,6 @@ def main():
 
     # get_posting_list for multiple tokens
     pls = dp.get_posting_list(tokens)
-    # print(pls["mount"])
     assert isinstance(pls, dict), "posting lists should be a dict"
     # pick first token that has postings
     term = None

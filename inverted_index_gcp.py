@@ -1,24 +1,20 @@
-import sys
-from collections import Counter, OrderedDict
-import itertools
-from itertools import islice, count, groupby
-import pandas as pd
-import os
-import re
-from operator import itemgetter
-from time import time
-from pathlib import Path
 import pickle
-# from google.cloud import storage
-from collections import defaultdict
+import itertools
+from collections import Counter, defaultdict
 from contextlib import closing
+from pathlib import Path
+from google.cloud import storage
 
-PROJECT_ID = 'YOUR-PROJECT-ID-HERE'
 def get_bucket(bucket_name):
-    return None
-    return storage.Client(PROJECT_ID).bucket(bucket_name)
+    """
+    Returns a GCS bucket object.
+    """
+    return storage.Client().bucket(bucket_name)
 
 def _open(path, mode, bucket=None):
+    """
+    Opens a file locally or from GCS.
+    """
     if bucket is None:
         return open(path, mode)
     return bucket.blob(path).open(mode)
@@ -29,12 +25,18 @@ BLOCK_SIZE = 1999998
 class MultiFileWriter:
     """ Sequential binary writer to multiple files of up to BLOCK_SIZE each. """
     def __init__(self, base_dir, name, bucket_name=None):
-        self._base_dir = Path(base_dir)
         self._name = name
         self._bucket = None if bucket_name is None else get_bucket(bucket_name)
-        self._file_gen = (_open(str(self._base_dir / f'{name}_{i:03}.bin'), 
-                                'wb', self._bucket) 
-                          for i in itertools.count())
+        if self._bucket is None:
+            self._base_dir = Path(base_dir)
+            self._file_gen = (_open(str(self._base_dir / f'{name}_{i:03}.bin'), 
+                                    'wb', self._bucket) 
+                              for i in itertools.count())
+        else:
+            self._base_dir = base_dir
+            self._file_gen = (_open(f'{self._base_dir}/{name}_{i:03}.bin', 
+                                    'wb', self._bucket) 
+                              for i in itertools.count())
         self._f = next(self._file_gen)
            
     def write(self, b):
@@ -59,14 +61,17 @@ class MultiFileWriter:
 class MultiFileReader:
     """ Sequential binary reader of multiple files of up to BLOCK_SIZE each. """
     def __init__(self, base_dir, bucket_name=None):
-        self._base_dir = Path(base_dir)
         self._bucket = None if bucket_name is None else get_bucket(bucket_name)
+        self._base_dir = Path(base_dir) if self._bucket is None else base_dir
         self._open_files = {}
 
     def read(self, locs, n_bytes):
         b = []
         for f_name, offset in locs:
-            f_name = str(self._base_dir / f_name)
+            if self._bucket is None:
+                f_name = str(self._base_dir / f_name)
+            else:
+                f_name = f"{self._base_dir}/{f_name}"
             if f_name not in self._open_files:
                 self._open_files[f_name] = _open(f_name, 'rb', self._bucket)
             f = self._open_files[f_name]
@@ -131,8 +136,11 @@ class InvertedIndex:
             (1) `name`.pkl containing the global term stats (e.g. df).
         """
         #### GLOBAL DICTIONARIES ####
-        self._write_globals(base_dir, name, bucket_name)
-
+        bucket = None if bucket_name is None else get_bucket(bucket_name)
+        if bucket is None:
+            path = str(Path(base_dir) / f'{name}.pkl')
+        else:
+            path = f"{base_dir}/{name}.pkl"
     def _write_globals(self, base_dir, name, bucket_name):
         path = str(Path(base_dir) / f'{name}.pkl')
         bucket = None if bucket_name is None else get_bucket(bucket_name)
@@ -188,8 +196,13 @@ class InvertedIndex:
                 locs = writer.write(b)
                 # save file locations to index
                 posting_locs[w].extend(locs)
-            path = str(Path(base_dir) / f'{bucket_id}_posting_locs.pickle')
+            
             bucket = None if bucket_name is None else get_bucket(bucket_name)
+            if bucket is None:
+                path = str(Path(base_dir) / f'{bucket_id}_posting_locs.pickle')
+            else:
+                path = f"{base_dir}/{bucket_id}_posting_locs.pickle"
+            
             with _open(path, 'wb', bucket) as f:
                 pickle.dump(posting_locs, f)
         return bucket_id
@@ -197,7 +210,11 @@ class InvertedIndex:
 
     @staticmethod
     def read_index(base_dir, name, bucket_name=None):
-        path = str(Path(base_dir) / f'{name}.pkl')
+        bucket = None if bucket_name is None else get_bucket(bucket_name)
+        if bucket is None:
+            path = str(Path(base_dir) / f'{name}.pkl')
+        else:
+            path = f"{base_dir}/{name}.pkl"
         bucket = None if bucket_name is None else get_bucket(bucket_name)
         with _open(path, 'rb', bucket) as f:
             return pickle.load(f)

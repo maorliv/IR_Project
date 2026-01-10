@@ -11,8 +11,8 @@ app = MyFlaskApp(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 
-BASE_DIR = "data"
-controller = SearchController(base_dir=BASE_DIR)
+BUCKET_NAME = "ir-maor-2025-bucket"
+controller = SearchController(bucket_name=BUCKET_NAME)
 
 
 @app.route("/search")
