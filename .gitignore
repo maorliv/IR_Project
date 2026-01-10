@@ -22,7 +22,7 @@ data/
 *.pkl
 *.bin
 *.csv
-queries_train.json
+
 
 # --- Documentation / Notebooks / Logs ---
 .ipynb_checkpoints
